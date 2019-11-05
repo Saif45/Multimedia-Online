@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Ayam Terbang - Hudzaifah Saiful Haq 
+	</title>
+
+	<style type="text/css">
+		#canvas{
+			border: 1px solid;
+			width: 800px;
+			height: 500px;
+		}
+	</style>
+
+</head>
+<body>
+	<canvas id="canvas">BRowser anda tidak support canvas</canvas>
+
+
+
+	<script type="text/javascript">
+
+		var duck= new Audio();
+		duck.src ="audio/duck.wav"
+
+		var musik= new Audio();
+		musik.src ="audio/musik.wav";
+
+		var horor= new Audio();
+		horor.src ="audio/horor.wav";
+
+		var beep= new Audio();
+		beep.src ="audio/Beep.wav"
+
+		var crash= new Audio();
+		crash.src ="audio/Crash.wav"
+
+		var bebek1= new Image(); //bikin karakter bebek
+		bebek1.src="img_flappy/char.png";
+
+		var bebek2= new Image(); //bikin karakter bebek
+		bebek2.src="img_flappy/char2.png";
+
+		var bg= new Image();
+		bg.src="img_flappy/bg.jpg"; //nambah backgroudn
+
+		var gambarTiang= new Image();
+		gambarTiang.src="img_flappy/tiang.jpg";
+
+		//nambah bebek mati
+		var mati= new Image();
+		mati.src="img_flappy/mati.png"
+
+	function mulaiKanvas(){ //membuat game dimasukkan fungsi 
+		var canvas= document.getElementById('canvas');
+		var ctx=canvas.getContext('2d');
+
+		canvas.width=canvas.scrollWidth;
+		canvas.height=canvas.scrollHeight;
+
+		var cW=canvas.width; //menyimpan variabel width dan height
+		var cH=canvas.height;
+
+
+		//function splash(){ //fungsi yg pertama klai dijalankan ketika di load
+
+
+		//}//
+
+		utama(); //manggil fungsi utama
+		var gantigambar=false; //ketika dklik maka jadi true
+
+		function Bg(){ //blueprint gambar background
+			this.x=0;
+			this.render=function(){
+				//membuat gambar bg kita 
+				ctx.drawImage(bg, this.x--, 0); //menampilkan bg dan x-- agar berjalan
+
+				if(this.x==-1599){
+
+					this.x=0;
+				}
+			}
+		}
+
+		var latar=new Bg; //buat function lagi.
+
+		function utama(){ //setelah di klik baru funsi utama di lakukan
+			//membuat karakter bebek blueprint// 
+			function Karakter(){
+				this.x=100; this.y=200; //posisi bebek//
+				this.w=100, this.h=100, this.i=0;//khusurs this 1; //ukuran bebek''
+				this.render=function(){//fungsi percetakan gambar di canvas
+
+					if(gantigambar){ //agar gambar ganti ketas ketika diklik
+							ctx.drawImage(bebek2, this.x, this.y+=5); //posisi bebek +=5 agar posisi bebek selalu kebawah//
+							this.i++;
+							if(this.i==5){ //agar pondisi menjadi semula bebek1 keitka setelah diklik dengan kondisi i=0;
+								gantigambar=false;
+								this.i=0;
+							}
+									}
+					else{
+							ctx.drawImage(bebek1, this.x, this.y+=5);
+						}
+				}
+			}
+
+				var karakter= new Karakter();
+
+				var tiang=[]; //array karena akan membuat angka random agar tiang bisa nilai y nya acak
+				tambahTiang(); //agar dirender akan ada satu tiang.
+				function tambahTiang(){
+					var x=800, y=0, w=50, h=300;
+					var acak=Math.floor(Math.random()*250); //angaka yang diacak maksimal 250
+
+					//lalu mnambah data array ke var tiang
+
+					tiang.push({"x":x,"y":y-acak,"w":w, "h":h}); //menambadh data arary baru jadi nnti y di kurangi acak  posisi y tadinya 0 
+				}
+				var hitung=0; //agar nilai mulai dari 0
+				//membuat fungsi render agar menjalankan fugnsti tiangnya
+
+				function selesai() {
+
+					//ketika sleesai dia menghentikan interval animasi
+					clearInterval(interval);
+					//mebersihkan canvas
+					ctx.clearRect(0,0,cW,cH);
+					//panggil lagi latarnya
+					latar.render();
+					renderTiang();
+					//menampilkan bebek mati
+					ctx.drawImage(mati, karakter.x, karakter.y); //mberubah ketika dipsosisi karakter
+
+					ctx.font="Bold 60px arial";
+					ctx.fillText("SELESAI", 320, 150);
+
+					ctx.font="Bold 60px arial";
+					ctx.fillText("Skor Anda Adalah "+skor, 150, 250);
+
+					crash.play(); //menambahkan audo mati
+					horor.play();
+					
+				}
+
+				var skor=0;
+				tambahNilai=true;
+				beep.play();
+
+				function tambahSkor(){
+					skor++;
+				}
+
+				//menbuat agar ketika kena tian gdan atas dan bawah mati
+				function kena() {
+					for(var i= 0;i<tiang.length; i++){
+						var t= tiang[i];
+						if((karakter.x+karakter.w>t.x && karakter.y<t.y+t.h && karakter.x<t.x+t.w)|| 
+							(karakter.x+karakter.w>t.x && karakter.y+karakter.h>t.y+t.h+220 && karakter.x<t.x+t.w)){
+							selesai();
+						} //mnambah score
+						else if (t.x+t.w<karakter.x){
+							if(tambahNilai){
+								tambahSkor();
+								tambahNilai=0;
+
+							}
+						}
+					}
+
+					if(karakter.y<=0){ selesai();}
+					if(karakter.y+karakter.x>cW){selesai();}
+
+				}
+
+				function renderTiang(){
+					//kita akan mencetak dan menajlankan dari kanan kekiri, data tiang adalah data array lo sehingga banyak variabel data
+					//jadi perulangan
+					for(var i=0; i<tiang.length; i++){
+						//baru dirender tiang kita
+						var t=tiang[i]
+						ctx.drawImage(gambarTiang, t.x--, t.y); //menggambar tiang pada posisi x //agar kanan kekiri maka x--
+						ctx.drawImage(gambarTiang,t.x--, t.y+t.h+220);
+
+						if(t.x+t.w<0){
+							tiang.splice(i, 1); //hapus tiang ketika sudah mlewat dari 0
+							tambahNilai=true; //agar ketika lewat tiang berikutnya nambah juga nilainya
+						}
+					}
+					hitung++;
+					if(hitung==150){
+						tambahTiang(); //agar menambah tiang baru ketiak hitung menjadi 300
+						hitung=0;
+					}
+
+				}
+
+				function animasi(){
+
+					ctx.save();
+					ctx.clearRect(0,0,cW,cH); //membersihkan sampah pada posisi yg di hapus//
+
+					latar.render(); //menjalankan bg tampilan	
+					karakter.render();//menjalankan render dari blueprint fungsi
+					renderTiang();
+					kena();
+
+					//keluarkan fotn score :
+					ctx.font="Normal 30px Arial";
+					ctx.fillText("Skor : " +skor, 20, 20);
+				
+
+					ctx.restore();
+				}
+
+				var interval= setInterval(animasi, 30); //kasih interval gunakan variabel intercval dengan interval 30
+
+
+
+				ctx.canvas.addEventListener('click', function(event){ //klik karakter akan naik keatas
+					karakter.y-=70 ; //naik 70 keatas
+					gantigambar=true; //ketika diklik maka jadi true
+					duck.play(); //agar diklik ada bunyi wek wek
+				})
+
+				//mengganti gambar yang bebek posisi keatas ketika diklik 
+
+		}//end fungsi utama
+
+		
+
+	}
+
+	//ketika halaman ini sudah di load
+	window.addEventListener('load', function(event){
+		mulaiKanvas()
+	});//ketika sudah di load maka menjalankan fungsimulai kanvas
+
+
+	</script>
+</body>
+</html>
